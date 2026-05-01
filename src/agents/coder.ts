@@ -1,9 +1,8 @@
-const fs = require('fs-extra');
-const ollama = require('../core/ollama');
-const logger = require('../utils/logger');
+import fs from 'fs-extra';
+import ollama from '../core/ollama';
 
 class CoderAgent {
-    async execute(prompt) {
+    async execute(prompt: string): Promise<string> {
         const systemPrompt = `You are an expert software engineer. 
         You have access to the local file system. 
         When asked to write code, provide the code clearly.
@@ -13,7 +12,7 @@ class CoderAgent {
         return await ollama.chat(prompt, systemPrompt);
     }
 
-    async analyzeFile(filePath) {
+    async analyzeFile(filePath: string): Promise<string> {
         if (!await fs.exists(filePath)) {
             throw new Error(`File not found: ${filePath}`);
         }
@@ -23,4 +22,4 @@ class CoderAgent {
     }
 }
 
-module.exports = new CoderAgent();
+export default new CoderAgent();

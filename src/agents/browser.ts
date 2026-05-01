@@ -1,10 +1,10 @@
-const puppeteer = require('puppeteer');
-const ollama = require('../core/ollama');
-const logger = require('../utils/logger');
+import puppeteer from 'puppeteer';
+import ollama from '../core/ollama';
+import logger from '../utils/logger';
 
 class BrowserAgent {
-    async browse(url, task) {
-        const browser = await puppeteer.launch({ headless: "new" });
+    async browse(url: string, task: string): Promise<string> {
+        const browser = await puppeteer.launch({ headless: true });
         const page = await browser.newPage();
         
         try {
@@ -25,4 +25,4 @@ class BrowserAgent {
     }
 }
 
-module.exports = new BrowserAgent();
+export default new BrowserAgent();

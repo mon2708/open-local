@@ -1,12 +1,27 @@
-const readline = require('readline');
-const chalk = require('chalk');
-const boxen = require('boxen');
-const figlet = require('figlet');
-const ollama = require('./ollama');
-const logger = require('../utils/logger');
-const packageJson = require('../../package.json');
+import readline from 'readline';
+import chalk from 'chalk';
+import boxen from 'boxen';
+import figlet from 'figlet';
+import fs from 'fs';
+import path from 'path';
+import ollama from './ollama';
+import logger from '../utils/logger';
+import browserAgent from '../agents/browser';
+import coder from '../agents/coder';
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
+
+interface Session {
+    id: string;
+    startTime: number;
+    toolCalls: number;
+    successRate: number;
+}
 
 class REPL {
+    private rl: readline.Interface;
+    private session: Session;
+
     constructor() {
         this.rl = readline.createInterface({
             input: process.stdin,
@@ -14,20 +29,20 @@ class REPL {
             prompt: chalk.gray('> ')
         });
         this.session = {
-            id: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+            id: Math.random().toString(36).substring(2, 15),
             startTime: Date.now(),
             toolCalls: 0,
             successRate: 100
         };
     }
 
-    start() {
+    start(): void {
         console.clear();
         this.printHeader();
         this.printStatus();
         this.rl.prompt();
 
-        this.rl.on('line', async (line) => {
+        this.rl.on('line', async (line: string) => {
             const input = line.trim();
             if (!input) {
                 this.printStatus();
@@ -48,12 +63,10 @@ class REPL {
                 return;
             }
 
-            // Handle commands
             if (input.startsWith('/')) {
                 this.session.toolCalls++;
                 await this.handleCommand(input);
             } else {
-                // Simple chat
                 const spinner = logger.spinner('AI is thinking...').start();
                 try {
                     spinner.stop();
@@ -62,7 +75,7 @@ class REPL {
                         process.stdout.write(token);
                     });
                     console.log('\n');
-                } catch (error) {
+                } catch (error: any) {
                     spinner.fail(error.message);
                 }
             }
@@ -77,7 +90,7 @@ class REPL {
         });
     }
 
-    printHeader() {
+    private printHeader(): void {
         const logo = figlet.textSync('LCLI', { font: 'Slant' });
         console.log(chalk.magenta(logo));
         console.log(chalk.bold(`LCLI v${packageJson.version}`));
@@ -85,7 +98,7 @@ class REPL {
 
         const announcement = boxen(
             chalk.yellow('We are making changes to LCLI that may impact your workflow.\n') +
-            chalk.white('New: Added premium UI and session tracking!\n') +
+            chalk.white('New: Migrated to TypeScript for professional development!\n') +
             chalk.blue('Read more: https://github.com/mon2708/open-local'),
             { padding: 1, margin: 1, borderStyle: 'round', borderColor: 'yellow' }
         );
@@ -97,14 +110,14 @@ class REPL {
         console.log('3. Be specific for the best results\n');
     }
 
-    printStatus() {
+    private printStatus(): void {
         const workspace = process.cwd();
         const model = process.env.OLLAMA_MODEL || 'llama3';
         const bar = chalk.bgGray.white(` workspace (${workspace})    sandbox (no sandbox)    /model (${model})    quota (unlimited) `);
         console.log(bar);
     }
 
-    printSummary() {
+    private printSummary(): void {
         const duration = ((Date.now() - this.session.startTime) / 1000).toFixed(1);
         const summary = boxen(
             chalk.cyan('Agent powering down. Goodbye!\n\n') +
@@ -120,7 +133,7 @@ class REPL {
         console.log(summary);
     }
 
-    async handleCommand(input) {
+    private async handleCommand(input: string): Promise<void> {
         const [cmd, ...args] = input.split(' ');
         const query = args.join(' ');
 
@@ -132,23 +145,21 @@ class REPL {
                     logger.error('Usage: /browse <url> <task>');
                     break;
                 }
-                const browserAgent = require('../agents/browser');
                 const bSpinner = logger.spinner('Browsing...').start();
                 try {
                     const result = await browserAgent.browse(url, task);
                     bSpinner.succeed('Done!');
                     logger.ai(result);
-                } catch (e) { bSpinner.fail(e.message); }
+                } catch (e: any) { bSpinner.fail(e.message); }
                 break;
 
             case '/code':
-                const coder = require('../agents/coder');
                 const cSpinner = logger.spinner('Analyzing...').start();
                 try {
                     const result = await coder.execute(query);
                     cSpinner.succeed('Done!');
                     logger.ai(result);
-                } catch (e) { cSpinner.fail(e.message); }
+                } catch (e: any) { cSpinner.fail(e.message); }
                 break;
 
             case '/help':
@@ -165,4 +176,4 @@ class REPL {
     }
 }
 
-module.exports = new REPL();
+export default new REPL();

@@ -1,12 +1,15 @@
-const { Ollama } = require('ollama');
+import { Ollama } from 'ollama';
 
 class OllamaService {
+    private ollama: Ollama;
+    private model: string;
+
     constructor() {
         this.ollama = new Ollama({ host: process.env.OLLAMA_HOST || 'http://localhost:11434' });
         this.model = process.env.OLLAMA_MODEL || 'llama3';
     }
 
-    async chat(message, systemPrompt = 'You are a helpful assistant.') {
+    async chat(message: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> {
         try {
             const response = await this.ollama.chat({
                 model: this.model,
@@ -16,12 +19,12 @@ class OllamaService {
                 ],
             });
             return response.message.content;
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Ollama Error: ${error.message}`);
         }
     }
 
-    async streamChat(message, onToken, systemPrompt = 'You are a helpful assistant.') {
+    async streamChat(message: string, onToken: (token: string) => void, systemPrompt: string = 'You are a helpful assistant.'): Promise<void> {
         try {
             const response = await this.ollama.chat({
                 model: this.model,
@@ -34,10 +37,10 @@ class OllamaService {
             for await (const part of response) {
                 onToken(part.message.content);
             }
-        } catch (error) {
+        } catch (error: any) {
             throw new Error(`Ollama Error: ${error.message}`);
         }
     }
 }
 
-module.exports = new OllamaService();
+export default new OllamaService();

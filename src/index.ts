@@ -1,9 +1,13 @@
 #!/usr/bin/env node
-require('dotenv').config();
-const { Command } = require('commander');
-const ollama = require('../src/core/ollama');
-const logger = require('../src/utils/logger');
-const packageJson = require('../package.json');
+import 'dotenv/config';
+import { Command } from 'commander';
+import ollama from './core/ollama';
+import logger from './utils/logger';
+import repl from './core/repl';
+import fs from 'fs';
+import path from 'path';
+
+const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
 
 const program = new Command();
 
@@ -12,14 +16,14 @@ program
   .description('Local CommandLine Interface - Agentic AI on your terminal')
   .version(packageJson.version)
   .action(() => {
-    require('../src/core/repl').start();
+    repl.start();
   });
 
 program
   .command('interactive')
   .description('Enter interactive shell mode')
   .action(() => {
-    require('../src/core/repl').start();
+    repl.start();
   });
 
 program
@@ -35,7 +39,7 @@ program
         process.stdout.write(token);
       });
       console.log('\n');
-    } catch (error) {
+    } catch (error: any) {
       spinner.fail(error.message);
     }
   });
@@ -46,7 +50,7 @@ program
   .argument('<prompt>', 'What to do?')
   .option('-f, --file <path>', 'File to analyze')
   .action(async (prompt, options) => {
-    const coder = require('../src/agents/coder');
+    const coder = (await import('./agents/coder')).default;
     const spinner = logger.spinner('Coding...').start();
     try {
       let result;
@@ -57,40 +61,7 @@ program
       }
       spinner.succeed('Done!');
       logger.ai(result);
-    } catch (error) {
-      spinner.fail(error.message);
-    }
-  });
-
-program
-  .command('browse')
-  .description('Browse a website and answer a question')
-  .argument('<url>', 'URL to visit')
-  .argument('<task>', 'What to find or do?')
-  .action(async (url, task) => {
-    const browser = require('../src/agents/browser');
-    const spinner = logger.spinner('Browsing...').start();
-    try {
-      const result = await browser.browse(url, task);
-      spinner.succeed('Done!');
-      logger.ai(result);
-    } catch (error) {
-      spinner.fail(error.message);
-    }
-  });
-
-program
-  .command('sum')
-  .description('Summarize a file')
-  .argument('<file>', 'File to summarize')
-  .action(async (file) => {
-    const coder = require('../src/agents/coder');
-    const spinner = logger.spinner('Summarizing...').start();
-    try {
-      const result = await coder.analyzeFile(file);
-      spinner.succeed('Done!');
-      logger.ai(result);
-    } catch (error) {
+    } catch (error: any) {
       spinner.fail(error.message);
     }
   });
