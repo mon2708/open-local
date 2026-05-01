@@ -8,10 +8,7 @@ import ollama from './ollama';
 import logger from '../utils/logger';
 import browserAgent from '../agents/browser';
 import coder from '../agents/coder';
-
-// Fix for __dirname in ESM-like TS environments
-const packageJsonPath = path.join(process.cwd(), 'package.json');
-const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+import packageJson from '../../package.json';
 
 interface Session {
     id: string;
