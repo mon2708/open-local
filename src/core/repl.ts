@@ -9,7 +9,9 @@ import logger from '../utils/logger';
 import browserAgent from '../agents/browser';
 import coder from '../agents/coder';
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
+// Fix for __dirname in ESM-like TS environments
+const packageJsonPath = path.join(process.cwd(), 'package.json');
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 interface Session {
     id: string;
