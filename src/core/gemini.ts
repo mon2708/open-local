@@ -13,9 +13,11 @@ class GeminiService {
                 this.currentVersion = version;
                 const endpoint = `https://wudysoft.xyz/api/ai/gemini/${version}`;
                 
-                const response = await axios.get(endpoint, {
-                    params: { text: message },
-                    timeout: 10000 // 10 seconds timeout per version
+                const response = await axios.post(endpoint, {
+                    prompt: message
+                }, {
+                    headers: { 'Content-Type': 'application/json' },
+                    timeout: 10000
                 });
 
                 // Extracting result from common API patterns
