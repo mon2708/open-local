@@ -9,6 +9,14 @@ class OllamaService {
         this.model = process.env.OLLAMA_MODEL || 'llama3';
     }
 
+    setModel(modelName: string) {
+        this.model = modelName;
+    }
+
+    getModel(): string {
+        return this.model;
+    }
+
     async chat(message: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> {
         try {
             const response = await this.ollama.chat({

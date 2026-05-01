@@ -111,7 +111,7 @@ class REPL {
 
     private printStatus(): void {
         const workspace = process.cwd();
-        const model = process.env.OLLAMA_MODEL || 'llama3';
+        const model = ollama.getModel();
         const bar = chalk.bgGray.white(` workspace (${workspace})    sandbox (no sandbox)    /model (${model})    quota (unlimited) `);
         console.log(bar);
     }
@@ -161,10 +161,20 @@ class REPL {
                 } catch (e: any) { cSpinner.fail(e.message); }
                 break;
 
+            case '/model':
+                if (!query) {
+                    logger.info(`Current model: ${chalk.cyan(ollama.getModel())}`);
+                    break;
+                }
+                ollama.setModel(query);
+                logger.success(`Model switched to: ${chalk.cyan(query)}`);
+                break;
+
             case '/help':
                 console.log(chalk.bold('\nAvailable Commands:'));
                 console.log('/browse <url> <task>  - Visit a website');
                 console.log('/code <prompt>        - Coding assistant');
+                console.log('/model <name>         - Switch Ollama model');
                 console.log('/clear               - Clear screen');
                 console.log('/exit                - Quit\n');
                 break;
