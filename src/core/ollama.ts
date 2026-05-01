@@ -17,6 +17,15 @@ class OllamaService {
         return this.model;
     }
 
+    async listModels() {
+        try {
+            const response = await this.ollama.list();
+            return response.models;
+        } catch (error: any) {
+            throw new Error(`Failed to list models: ${error.message}`);
+        }
+    }
+
     async chat(message: string, systemPrompt: string = 'You are a helpful assistant.'): Promise<string> {
         try {
             const response = await this.ollama.chat({

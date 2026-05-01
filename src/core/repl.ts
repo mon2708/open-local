@@ -162,12 +162,32 @@ class REPL {
                 break;
 
             case '/model':
+                const models = await ollama.listModels();
                 if (!query) {
-                    logger.info(`Current model: ${chalk.cyan(ollama.getModel())}`);
+                    console.log(chalk.bold('\nAvailable Models:'));
+                    models.forEach((m, i) => {
+                        const active = m.name === ollama.getModel() ? chalk.green(' (active)') : '';
+                        console.log(`${i + 1}. ${chalk.cyan(m.name)}${active}`);
+                    });
+                    console.log(chalk.dim('\nUsage: /model <name> or /model <number>\n'));
                     break;
                 }
-                ollama.setModel(query);
-                logger.success(`Model switched to: ${chalk.cyan(query)}`);
+
+                // Check if query is a number
+                const index = parseInt(query) - 1;
+                if (!isNaN(index) && models[index]) {
+                    ollama.setModel(models[index].name);
+                    logger.success(`Model switched to: ${chalk.cyan(models[index].name)}`);
+                } else {
+                    // Check if model exists in the list
+                    const found = models.find(m => m.name === query || m.name.split(':')[0] === query);
+                    if (found) {
+                        ollama.setModel(found.name);
+                        logger.success(`Model switched to: ${chalk.cyan(found.name)}`);
+                    } else {
+                        logger.error(`Model "${query}" not found locally.`);
+                    }
+                }
                 break;
 
             case '/help':
