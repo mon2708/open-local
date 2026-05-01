@@ -9,7 +9,7 @@ import logger from '../utils/logger';
 import browserAgent from '../agents/browser';
 import coder from '../agents/coder';
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../../package.json'), 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
 
 interface Session {
     id: string;

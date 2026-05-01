@@ -6,8 +6,9 @@ import logger from './utils/logger';
 import repl from './core/repl';
 import fs from 'fs';
 import path from 'path';
+import chalk from 'chalk';
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
 
 const program = new Command();
 
@@ -34,7 +35,7 @@ program
     const spinner = logger.spinner('AI is thinking...').start();
     try {
       spinner.stop();
-      process.stdout.write(require('chalk').cyan('🤖 AI: '));
+      process.stdout.write(chalk.cyan('🤖 AI: '));
       await ollama.streamChat(message, (token) => {
         process.stdout.write(token);
       });
