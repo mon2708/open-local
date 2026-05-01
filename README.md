@@ -1,6 +1,6 @@
 # LCLI (Local CommandLine Interface) 🚀
 
-**LCLI** adalah tool CLI agentik lokal yang memungkinkan kamu berinteraksi dengan AI (via Ollama) langsung dari terminal. Dilengkapi dengan fitur premium ala Gemini CLI, LCLI bisa membantu kamu ngoding, ngeringkas file, hingga browsing internet secara otomatis.
+**LCLI** adalah tool CLI agentik lokal yang memungkinkan kamu berinteraksi dengan AI (via Ollama) langsung dari terminal. Dilengkapi dengan fitur premium, LCLI bisa membantu kamu ngoding, ngeringkas file, hingga browsing internet secara otomatis.
 
 ![LCLI Banner](https://github.com/mon2708/open-local/raw/main/assets/banner.png) *(Segera tambahkan screenshot kamu di sini!)*
 
