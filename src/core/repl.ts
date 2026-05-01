@@ -2,14 +2,11 @@ import readline from 'readline';
 import chalk from 'chalk';
 import boxen from 'boxen';
 import figlet from 'figlet';
-import fs from 'fs';
-import path from 'path';
 import ollama from './ollama';
 import logger from '../utils/logger';
 import browserAgent from '../agents/browser';
 import coder from '../agents/coder';
-
-const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
+import packageJson from '../../package.json';
 
 interface Session {
     id: string;

@@ -4,11 +4,10 @@ import { Command } from 'commander';
 import ollama from './core/ollama';
 import logger from './utils/logger';
 import repl from './core/repl';
-import fs from 'fs';
-import path from 'path';
 import chalk from 'chalk';
+import packageJson from '../package.json';
 
-const packageJson = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'package.json'), 'utf8'));
+import { checkForUpdates } from './utils/updater';
 
 const program = new Command();
 
@@ -16,14 +15,16 @@ program
   .name('lcli')
   .description('Local CommandLine Interface - Agentic AI on your terminal')
   .version(packageJson.version)
-  .action(() => {
+  .action(async () => {
+    await checkForUpdates();
     repl.start();
   });
 
 program
   .command('interactive')
   .description('Enter interactive shell mode')
-  .action(() => {
+  .action(async () => {
+    await checkForUpdates();
     repl.start();
   });
 
