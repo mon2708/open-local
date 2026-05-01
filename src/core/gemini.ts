@@ -20,18 +20,22 @@ class GeminiService {
                     timeout: 10000
                 });
 
-                // Extracting result from common API patterns
-                const result = response.data.result || response.data.data;
+                // Smart extraction from varied API response formats
+                let result = response.data.result || response.data.data || response.data.response || response.data;
+                
+                // If the result is the whole data object and has a text field inside
+                if (result && typeof result === 'object') {
+                    result = result.text || result.content || result.message || result;
+                }
+
                 if (result) {
-                    // Handle if result is an object (from v10.js logic)
-                    if (typeof result === 'object' && result.text) return result.text;
-                    return typeof result === 'string' ? result : JSON.stringify(result);
+                    const finalMsg = typeof result === 'string' ? result.trim() : JSON.stringify(result);
+                    if (finalMsg && finalMsg !== 'undefined' && finalMsg !== 'null') {
+                        return finalMsg;
+                    }
                 }
                 
-                // If no result but response is ok, maybe the data itself is the answer
-                if (response.data && typeof response.data === 'string') return response.data;
-                
-                throw new Error('Empty response');
+                throw new Error('No valid response text found');
             } catch (error: any) {
                 console.log(chalk.yellow(`\n[Gemini] Version ${version} failed, trying fallback...`));
                 lastError = error;
