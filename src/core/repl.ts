@@ -5,6 +5,7 @@ import figlet from 'figlet';
 import fs from 'fs';
 import path from 'path';
 import ollama from './ollama';
+import gemini from './gemini';
 import logger from '../utils/logger';
 import browserAgent from '../agents/browser';
 import coder from '../agents/coder';
@@ -17,9 +18,12 @@ interface Session {
     successRate: number;
 }
 
+type AIProvider = 'ollama' | 'gemini';
+
 class REPL {
     private rl: readline.Interface;
     private session: Session;
+    private provider: AIProvider = 'ollama';
 
     constructor() {
         this.rl = readline.createInterface({
@@ -75,14 +79,16 @@ class REPL {
                 ];
                 const randomMsg = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
                 const spinner = logger.spinner(randomMsg!).start();
-                
+
                 try {
                     let firstToken = true;
-                    await ollama.streamChat(input, (token) => {
+                    const aiService = this.provider === 'ollama' ? ollama : gemini;
+                    
+                    await aiService.streamChat(input, (token) => {
                         if (firstToken) {
                             spinner.stop();
                             // Clear the spinner line and start the AI prefix
-                            process.stdout.write(chalk.cyan('🤖 AI: '));
+                            process.stdout.write(chalk.cyan('AI: '));
                             firstToken = false;
                         }
                         process.stdout.write(token);
@@ -204,11 +210,25 @@ class REPL {
                 }
                 break;
 
+            case '/provider':
+                if (!query) {
+                    logger.info(`Current provider: ${chalk.cyan(this.provider)}`);
+                    break;
+                }
+                if (query === 'gemini' || query === 'ollama') {
+                    this.provider = query as AIProvider;
+                    logger.success(`Provider switched to: ${chalk.cyan(this.provider)}`);
+                } else {
+                    logger.error('Invalid provider. Use "ollama" or "gemini"');
+                }
+                break;
+
             case '/help':
                 console.log(chalk.bold('\nAvailable Commands:'));
                 console.log('/browse <url> <task>  - Visit a website');
                 console.log('/code <prompt>        - Coding assistant');
                 console.log('/model <name>         - Switch Ollama model');
+                console.log('/provider <name>      - Switch AI provider (ollama/gemini)');
                 console.log('/clear               - Clear screen');
                 console.log('/exit                - Quit\n');
                 break;
