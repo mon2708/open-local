@@ -66,11 +66,25 @@ class REPL {
                 this.session.toolCalls++;
                 await this.handleCommand(input);
             } else {
-                const spinner = logger.spinner('AI is thinking...').start();
+                const thinkingMessages = [
+                    'AI is thinking deeply...',
+                    'AI is analyzing your request...',
+                    'AI is searching for answers...',
+                    'AI is looking through context...',
+                    'AI is formulating a response...'
+                ];
+                const randomMsg = thinkingMessages[Math.floor(Math.random() * thinkingMessages.length)];
+                const spinner = logger.spinner(randomMsg!).start();
+                
                 try {
-                    spinner.stop();
-                    process.stdout.write(chalk.cyan('🤖 AI: '));
+                    let firstToken = true;
                     await ollama.streamChat(input, (token) => {
+                        if (firstToken) {
+                            spinner.stop();
+                            // Clear the spinner line and start the AI prefix
+                            process.stdout.write(chalk.cyan('🤖 AI: '));
+                            firstToken = false;
+                        }
                         process.stdout.write(token);
                     });
                     console.log('\n');
